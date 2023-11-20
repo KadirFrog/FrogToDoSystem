@@ -1,3 +1,0 @@
-import customtkinter
-
-# main func
