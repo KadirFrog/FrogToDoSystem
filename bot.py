@@ -36,10 +36,14 @@ async def add_task(ctx, task_name, deadline, for_whom):
 async def add_description(ctx, arg1, *, arg2):
     description = arg2
     task_name = arg1
-    await ctx.send(await func.add_description_to_task(task_name, description))
+    await ctx.send(await func.add_description_to_task(task_name, description, ctx.author.display_name))
 
 @bot.command(name="delete-user", brief="Deletes a user from system with its corresponding task-data.")
 async def del_user(ctx, user_name):
     await ctx.send(await func.delete_user(user_name, ctx.author.display_name))
+
+@bot.command(name="list", brief="Lists all tasks of a user.")
+async def list_taks(ctx, user_name):
+    await ctx.send(await func.show_tasks(user_name, ctx.author.display_name))
 
 bot.run(TOKEN)
