@@ -19,8 +19,8 @@ async def create_user(name, creator) -> str:
             return "Error: " + str(e)
 
 
-async def add_task(task_name, deadline, task_author, task_creation_date, description, for_whom):
-    new_task = Task(task_name, deadline, task_author, task_creation_date, description, for_whom)
+async def add_task(task_name, deadline, task_author, task_creation_date, for_whom):
+    new_task = Task(task_name, deadline, task_author, task_creation_date, for_whom)
     try:
         new_task.save_task_to_data()
         return f"Task: '{task_name}' successfully saved for user: '{for_whom}'."
@@ -29,3 +29,29 @@ async def add_task(task_name, deadline, task_author, task_creation_date, descrip
 
 def format_time(time_string):
     return time_string
+
+async def add_description_to_task(task_name, description):
+    try:
+        global final_return_message
+        for filename in os.listdir("data"):
+            file_path = os.path.join("data", filename)
+            content = open(file_path, "r").read().splitlines()
+            final_return_message = []
+            for x in range(len(content)):
+                line = content[x]
+                task_name_of_line = line[: line.index(";")]
+                if task_name_of_line == task_name:
+                    content[x] += "$" + description
+                    final_return_message.append(f"Description added to task: '{task_name_of_line}' at user: '{filename}'.")
+
+                with open(file_path, "w") as f:
+                    f.write("\n".join(content))
+
+        return f"Description:\n'{description}'\n" + "\n".join(final_return_message)
+
+    except Exception as e:
+        return "Error: " + str(e)
+
+
+
+

@@ -27,10 +27,16 @@ async def create_user(ctx, username):
     await ctx.send(await func.create_user(username, ctx.author.display_name))
 
 @bot.command(name="new", brief="Creates a new task for someone.")
-async def add_task(ctx, task_name, deadline, description, for_whom):
+async def add_task(ctx, task_name, deadline, for_whom):
     task_creation_date = get_time()
     task_author = ctx.author.display_name
-    await ctx.send(await func.add_task(task_name, deadline, task_author, task_creation_date, description, for_whom))
+    await ctx.send(await func.add_task(task_name, deadline, task_author, task_creation_date, for_whom))
+
+@bot.command(name="description", brief="Adds a description to all tasks of all users with the name given.")
+async def add_description(ctx, arg1, *, arg2):
+    description = arg2
+    task_name = arg1
+    await ctx.send(await func.add_description_to_task(task_name, description))
 
 
 bot.run(TOKEN)
