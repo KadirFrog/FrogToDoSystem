@@ -14,11 +14,9 @@ async def create_user(name, creator) -> str:
         else:
             return "User already exists"
     except Exception as e:
-        if str(e) != "substring not found":
-            return "Error: " + str(e)
-        else:
-            os.remove(os.path.join("data/", name))
-            return "Error: " + str(e)
+        os.remove(os.path.join("data/", name))
+        await error_log(str(e), creator)
+        return "Error: " + str(e)
 
 
 async def add_task(task_name, deadline, task_author, task_creation_date, for_whom):
@@ -32,7 +30,7 @@ async def add_task(task_name, deadline, task_author, task_creation_date, for_who
 def format_time(time_string):
     return time_string
 
-async def add_description_to_task(task_name, description):
+async def add_description_to_task(task_name, description, giver):
     try:
         global final_return_message
         for filename in os.listdir("data"):
@@ -52,6 +50,7 @@ async def add_description_to_task(task_name, description):
         return f"Description:\n'{description}'\n" + "\n".join(final_return_message)
 
     except Exception as e:
+        await error_log(str(e), giver)
         return "Error: " + str(e)
 
 
@@ -65,5 +64,13 @@ async def delete_user(user_name, deleter):
             f.write("\n".join(content))
         return f"User '{user_name}' has been deleted."
     except Exception as e:
+        await error_log(str(e), deleter)
         return f"Error: {e}"
 
+
+async def error_log(error: str, error_causer: str):
+    s: str = ";"
+    content = open("other_data/error_logs", "r").read().splitlines()
+    content.append(get_time() + s + error + s + error_causer + s)
+    with open("other_data/error_logs", "w") as f:
+        f.write("\n".join(content))
