@@ -38,5 +38,8 @@ async def add_description(ctx, arg1, *, arg2):
     task_name = arg1
     await ctx.send(await func.add_description_to_task(task_name, description))
 
+@bot.command(name="delete-user", brief="Deletes a user from system with its corresponding task-data.")
+async def del_user(ctx, user_name):
+    await ctx.send(await func.delete_user(user_name, ctx.author.display_name))
 
 bot.run(TOKEN)

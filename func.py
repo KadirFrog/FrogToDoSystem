@@ -1,4 +1,6 @@
 import os.path
+from typing import List
+
 from time_manager import get_time
 from classes import Task
 
@@ -53,5 +55,15 @@ async def add_description_to_task(task_name, description):
         return "Error: " + str(e)
 
 
-
+async def delete_user(user_name, deleter):
+    try:
+        os.remove(os.path.join("data", user_name))
+        s: str = ";"
+        content = open("other_data/deletions", "r").read().splitlines()
+        content.append(get_time() + s + user_name + s + deleter + s)
+        with open("other_data/deletions", "w") as f:
+            f.write("\n".join(content))
+        return f"User '{user_name}' has been deleted."
+    except Exception as e:
+        return f"Error: {e}"
 
