@@ -26,4 +26,11 @@ async def on_ready():
 async def create_user(ctx, username):
     await ctx.send(await func.create_user(username, ctx.author.display_name))
 
+@bot.command(name="new", brief="Creates a new task for someone.")
+async def add_task(ctx, task_name, deadline, description, for_whom):
+    task_creation_date = get_time()
+    task_author = ctx.author.display_name
+    await ctx.send(await func.add_task(task_name, deadline, task_author, task_creation_date, description, for_whom))
+
+
 bot.run(TOKEN)
