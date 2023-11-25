@@ -76,11 +76,14 @@ async def delete_user(user_name, deleter):
 
 
 async def error_log(error: str, error_causer: str):
-    s: str = ";"
-    content = open("other_data/error_logs", "r").read().splitlines()
-    content.append(get_time() + s + error + s + error_causer + s)
-    with open("other_data/error_logs", "w") as f:
-        f.write("\n".join(content))
+    try:
+        s: str = ";"
+        content = open("other_data/error_logs", "r").read().splitlines()
+        content.append(get_time() + s + error + s + error_causer + s)
+        with open("other_data/error_logs", "w") as f:
+            f.write("\n".join(content))
+    except:
+        print("System Failure")
 
 
 def task_format(task_save_format_data):
@@ -102,8 +105,69 @@ async def show_tasks(user_name, requester):
         final_output = []
         for line in content:
             final_output.append(task_format(line))
-        return f"Aufgaben von '{user_name}'\n" + "\n".join(final_output)
+        if final_output:
+            return f"Aufgaben von '{user_name}'\n" + "\n".join(final_output)
+        else:
+            return f"User: '{user_name}' hat keine Aufgaben."
 
     except Exception as e:
         await error_log(str(e), requester)
         return f"Error: {e}"
+
+
+async def task_done(task_name, requester):
+    final_return_message_task_done = []
+    for filename in os.listdir("data"):
+        filepath = os.path.join("data", filename)
+        content = open(filepath, "r").read().splitlines()
+        for x in range(len(content)):
+            read_task_name = content[x][: content[x].index(";")]
+            if read_task_name == task_name:
+                try:
+                    content[x] = content[x].split("$")
+                    content[x][0] = content[x][0].split(";")
+                    content[x][0][-1] = filename
+                    content[x][0].append(";" + requester)
+                    content[x][0] = ";".join(content[x][0])
+                    content[x] = "$".join(content[x])
+                except Exception as e:
+                    print(e)
+                    content[x] = content[x].split(";")
+                    content[x][-1] = filename
+                    content[x].append(";" + requester)
+                    content[x] = ";".join(content[x])
+                done_content = open("other_data/done", "r").read().splitlines()
+                done_content.append(content[x])
+                done_content = "\n".join(done_content)
+                del content[x]
+                with open("other_data/done", "w") as f:
+                    f.write(done_content)
+                with open(filepath, "w") as f:
+                    f.write("\n".join(content))
+                final_return_message_task_done.append(f"Aufgabe: '{read_task_name}' wurde für user: '{filename}' als erledigt gespeichert.")
+                return "".join(final_return_message_task_done)
+
+
+async def recently_done(requester, how_many):
+    try:
+        content = open("other_data/done", "r").read().splitlines()[:how_many]
+        final_return_message_recently_done = ["Letztens Erledigte Aufgaben\n\n"]
+        for line in content:
+            tl = line.split(";")
+            if "" in tl:
+                tl.remove("")
+            task_name, deadline, done_when, task_of, set_done_by, description = tl
+            m = \
+            f"""Aufgabe: {task_name}
+    |   Aufgabe von: {task_of}
+    |   Erledigt am: {done_when}
+    |   Erklärung: {description}
+    |   Deadline: {deadline}
+    |   Erledigt gekennzeichnet von: {set_done_by}
+    """
+            final_return_message_recently_done.append(m)
+            return "".join(final_return_message_recently_done)
+
+    except Exception as e:
+        await error_log(str(e), requester)
+        return "Error: " + str(e)

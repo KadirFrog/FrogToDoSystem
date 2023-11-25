@@ -46,4 +46,23 @@ async def del_user(ctx, user_name):
 async def list_taks(ctx, user_name):
     await ctx.send(await func.show_tasks(user_name, ctx.author.display_name))
 
+@bot.command(name="done", brief="Sets a command as 'done' removing it from every user and logging it to the 'done-file'.")
+async def set_task_done(ctx, task_name):
+    try:
+        await ctx.send(await func.task_done(task_name, ctx.author.display_name))
+    except Exception as e:
+        await ctx.send(f"Task not found: {e}")
+        await func.error_log(str(e), ctx.author.display_name)
+
+@bot.command(name="recent", brief="Shows the recently done tasks.")
+async def recently_done(ctx, i):
+    try:
+        i = int(i)
+    except:
+        await ctx.send("Unvalid input: " + i)
+        return
+
+    await ctx.send(await func.recently_done(i, ctx.author.display_name))
+
+
 bot.run(TOKEN)
