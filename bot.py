@@ -66,7 +66,6 @@ async def set_task_done(ctx, task_name):
 
 @bot.command(name="recent", brief="Shows the recently done tasks.")
 async def recently_done(ctx, i):
-    print(i)
     try:
         i = int(i)
         await ctx.send(await func.recently_done(ctx.author.display_name, i))

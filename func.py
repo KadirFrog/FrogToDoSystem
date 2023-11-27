@@ -145,14 +145,19 @@ async def task_done(task_name, requester):
                     f.write(done_content)
                 with open(filepath, "w") as f:
                     f.write("\n".join(content))
-                final_return_message_task_done.append(f"Aufgabe: '{read_task_name}' wurde für user: '{filename}' als erledigt gespeichert.")
+                final_return_message_task_done.append(
+                    f"Aufgabe: '{read_task_name}' wurde für user: '{filename}' als erledigt gespeichert.")
                 return "".join(final_return_message_task_done)
 
 
-async def recently_done(requester, how_many): # Doesn't support a too high input of how many
+async def recently_done(requester, how_many):  # Doesn't support a too high input of how many
     try:
         how_many = int(how_many)
         content = open("other_data/done", "r").read().splitlines()[:how_many]
+        if how_many > len(content):
+            not_enough: bool = True
+        else:
+            not_enough: bool = False
         final_return_message_recently_done = ["Letztens Erledigte Aufgaben\n\n"]
         for line in content:
             tl = line.split(";")
@@ -164,19 +169,23 @@ async def recently_done(requester, how_many): # Doesn't support a too high input
                 tl[-2] = tl[-2][: tl[-2].index("$")]
             except Exception as e:
                 tl.append("None")
-                print(e)
-            pprint(tl)
+
             task_name, deadline, done_when, task_of, set_done_by, description = tl
             m = \
-            f"""Aufgabe: {task_name}
+                f"""Aufgabe: {task_name}
     |   Aufgabe von: {task_of}
     |   Erledigt am: {done_when}
     |   Erklärung: {description}
     |   Deadline: {deadline}
     |   Erledigt gekennzeichnet von: {set_done_by}
+    
     """
             final_return_message_recently_done.append(m)
-            return "".join(final_return_message_recently_done)
+
+        if not_enough:
+            final_return_message_recently_done.append(f"Es werden nur {len(final_return_message_recently_done) - 1} erledigte Aufgaben angezeigt, da noch nicht so viele Aufgaben erledigt wurden. Mensch Yanis!")
+
+        return "".join(final_return_message_recently_done)
 
     except Exception as e:
         await error_log(str(e), requester)
