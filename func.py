@@ -1,7 +1,4 @@
 import os.path
-from pprint import pprint
-from typing import List
-
 from time_manager import get_time
 from classes import Task
 
@@ -30,7 +27,7 @@ async def add_task(task_name, deadline, task_author, task_creation_date, for_who
         new_task.save_task_to_data()
         return f"Aufgabe: '{task_name}' erfolgreich gespeichert user: '{for_whom}'."
     except FileNotFoundError:
-        return f"{s}er Benutzer '{for_whom}' wurde nicht gefunden. Du kannst den 'list-users' command benutzen um die usernames von allen usern zu sehen."  # TODO: add the list-users command
+        return f"{s}er Benutzer '{for_whom}' wurde nicht gefunden. Du kannst den 'list-users' command benutzen um die usernames von allen usern zu sehen."
 
 
 def format_time(time_string):
@@ -197,3 +194,14 @@ async def recently_done(requester, how_many):  # Doesn't support a too high inpu
     except Exception as e:
         await error_log(str(e), requester)
         return "Error: " + str(e)
+
+def get_all_usernames(requester):
+    try:
+        a = os.listdir("data/")
+        if not a:
+            return "Niemand benutzt mich ):"
+        a[0] = "- " + a[0]
+        return "\n- ".join(a)
+    except Exception as e:
+        error_log(str(e), requester)
+        return f"Error: {e}"

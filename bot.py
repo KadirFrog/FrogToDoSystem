@@ -79,5 +79,8 @@ async def recently_done(ctx, i):
         await ctx.send("Unvalid input: " + i)
         return
 
+@bot.command(name="list-users", brief="Shows all users.")
+async def list_users(ctx):
+    await ctx.send(func.get_all_usernames(ctx.author.display_name))
 
 bot.run(TOKEN)
