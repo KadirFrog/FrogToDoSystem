@@ -7,16 +7,17 @@ class Task:
         self.deadline = deadline
         self.task_author = task_author
         self.task_creation_date = task_creation_date
-        self.for_whom = for_whom
+        self.for_whom: list = for_whom
 
     def __str__(self):
         return self.task_name
 
     def save_task_to_data(self):
         s: str = ";"
-        file_path = os.path.join("data", self.for_whom)
-        content = open(file_path, "r").read().splitlines()
-        content.append(self.task_name + s + self.deadline + s + self.task_creation_date + s + self.task_author)
-        content = "\n".join(content)
-        with open(file_path, "w") as f:
-            f.write(content)
+        for person in self.for_whom:
+            file_path = os.path.join("data", person)
+            content = open(file_path, "r").read().splitlines()
+            content.append(self.task_name + s + self.deadline + s + self.task_creation_date + s + self.task_author)
+            content = "\n".join(content)
+            with open(file_path, "w") as f:
+                f.write(content)

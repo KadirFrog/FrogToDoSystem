@@ -22,18 +22,22 @@ async def create_user(name, creator) -> str:
 
 async def add_task(task_name, deadline, task_author, task_creation_date, for_whom):
     new_task = Task(task_name, deadline, task_author, task_creation_date, for_whom)
+    if len(for_whom) == 1:
+        s = "D"
+    else:
+        s = "Einer d"
     try:
         new_task.save_task_to_data()
-        return f"Task: '{task_name}' successfully saved for user: '{for_whom}'."
+        return f"Aufgabe: '{task_name}' erfolgreich gespeichert user: '{for_whom}'."
     except FileNotFoundError:
-        return f"User '{for_whom}' not found. Try using the 'list_users' command."  # TODO: add the list-users command
+        return f"{s}er Benutzer '{for_whom}' wurde nicht gefunden. Du kannst den 'list-users' command benutzen um die usernames von allen usern zu sehen."  # TODO: add the list-users command
 
 
 def format_time(time_string):
     return time_string
 
 
-async def add_description_to_task(task_name, description, giver):
+async def add_description_to_task(task_name, description, requester):
     try:
         global final_return_message
         for filename in os.listdir("data"):
@@ -58,7 +62,7 @@ async def add_description_to_task(task_name, description, giver):
         return f"Description:\n'{description}'\n" + "\n".join(final_return_message)
 
     except Exception as e:
-        await error_log(str(e), giver)
+        await error_log(str(e), requester)
         return "Error: " + str(e)
 
 
@@ -88,7 +92,10 @@ async def error_log(error: str, error_causer: str):
 
 
 def task_format(task_save_format_data):
-    task_save_format_data, description = task_save_format_data.split("$")
+    try:
+        task_save_format_data, description = task_save_format_data.split("$")
+    except:
+        description = "Keine"
     task_name, task_deadline, task_creation_date, task_author = task_save_format_data.split(";")
     return \
         f"""{task_name}
@@ -168,7 +175,7 @@ async def recently_done(requester, how_many):  # Doesn't support a too high inpu
                 tl.append(tl[-1].split("$")[1])
                 tl[-2] = tl[-2][: tl[-2].index("$")]
             except Exception as e:
-                tl.append("None")
+                tl.append("Keine")
 
             task_name, deadline, done_when, task_of, set_done_by, description = tl
             m = \

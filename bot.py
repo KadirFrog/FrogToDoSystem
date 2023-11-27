@@ -31,9 +31,14 @@ async def create_user(ctx, username):
 
 
 @bot.command(name="new", brief="Creates a new task for someone.")
-async def add_task(ctx, task_name, deadline, for_whom):
+async def add_task(ctx, task_name, deadline, *, for_whom):
     task_creation_date = get_time()
     task_author = ctx.author.display_name
+    try:
+        for_whom = for_whom.split(" ")
+    except Exception as e:
+        print(e)
+        for_whom = [for_whom]
     await ctx.send(await func.add_task(task_name, deadline, task_author, task_creation_date, for_whom))
 
 
