@@ -1,4 +1,5 @@
 import os.path
+from pprint import pprint
 from typing import List
 
 from time_manager import get_time
@@ -82,8 +83,8 @@ async def error_log(error: str, error_causer: str):
         content.append(get_time() + s + error + s + error_causer + s)
         with open("other_data/error_logs", "w") as f:
             f.write("\n".join(content))
-    except:
-        print("System Failure")
+    except Exception as e:
+        print("System Failure: " + str(e))
 
 
 def task_format(task_save_format_data):
@@ -148,14 +149,23 @@ async def task_done(task_name, requester):
                 return "".join(final_return_message_task_done)
 
 
-async def recently_done(requester, how_many):
+async def recently_done(requester, how_many): # Doesn't support a too high input of how many
     try:
+        how_many = int(how_many)
         content = open("other_data/done", "r").read().splitlines()[:how_many]
         final_return_message_recently_done = ["Letztens Erledigte Aufgaben\n\n"]
         for line in content:
             tl = line.split(";")
             if "" in tl:
                 tl.remove("")
+
+            try:
+                tl.append(tl[-1].split("$")[1])
+                tl[-2] = tl[-2][: tl[-2].index("$")]
+            except Exception as e:
+                tl.append("None")
+                print(e)
+            pprint(tl)
             task_name, deadline, done_when, task_of, set_done_by, description = tl
             m = \
             f"""Aufgabe: {task_name}
