@@ -83,4 +83,13 @@ async def recently_done(ctx, i):
 async def list_users(ctx):
     await ctx.send(func.get_all_usernames(ctx.author.display_name))
 
+@bot.command(name="move", brief="Moves a task between users.")
+async def change_task_owners(ctx, task_name, *, new_task_owners):
+    try:
+        new_task_owners = new_task_owners.split(" ")
+    except Exception as e:
+        print(e)
+        new_task_owners = [new_task_owners]
+    await ctx.send(await func.change_task_owners(task_name, new_task_owners, ctx.author.display_name))
+
 bot.run(TOKEN)

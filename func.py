@@ -1,4 +1,7 @@
 import os.path
+from typing import List
+from pprint import pprint
+import classes
 from time_manager import get_time
 from classes import Task
 
@@ -24,7 +27,7 @@ async def add_task(task_name, deadline, task_author, task_creation_date, for_who
     else:
         s = "Einer d"
     try:
-        new_task.save_task_to_data()
+        await new_task.save_task_to_data()
         return f"Aufgabe: '{task_name}' erfolgreich gespeichert user: '{for_whom}'."
     except FileNotFoundError:
         return f"{s}er Benutzer '{for_whom}' wurde nicht gefunden. Du kannst den 'list-users' command benutzen um die usernames von allen usern zu sehen."
@@ -102,7 +105,14 @@ def task_format(task_save_format_data):
 |   Aufgabe erstellt am: {task_creation_date}
 
 """
-
+def task_format_backend(task_save_format_data):
+    try:
+        task_save_format_data, description = task_save_format_data.split("$")
+    except:
+        description = ""
+    task_name, task_deadline, task_creation_date, task_author = task_save_format_data.split(";")
+    return {"task_name": task_name, "task_deadline": task_deadline, "task_creation_date": task_creation_date,
+            "task_author": task_author, "task_description": description}
 
 async def show_tasks(user_name, requester):
     try:
@@ -205,3 +215,49 @@ def get_all_usernames(requester):
     except Exception as e:
         error_log(str(e), requester)
         return f"Error: {e}"
+
+async def change_task_owners(task_name, new_task_owners: list, requester):
+    try:
+        global final_return_message_cto, task_save_variable
+        file_names = os.listdir("data")
+        y = 0
+
+        for file_name in file_names:
+            y += 1
+            file_path = os.path.join("data", file_name)
+            content = open(file_path, "r").read().splitlines()
+            x = 0
+            while x < len(content):
+                if content[x][: content[x].index(";")] == task_name:
+                    if y == 1:
+                        task_save_variable = content[x]
+                        final_return_message_cto = ["Task removed:\n", task_format(task_save_variable), "Removed from following users:"]
+                    del content[x]
+                    final_return_message_cto.append(f"|\t{file_name}")
+                    x -= 1
+                x += 1
+
+            with open(file_path, "w") as f:
+                f.write("\n".join(content))
+
+        split_v: list[str] = task_save_variable.split(";")
+        try:
+            split_v[-1] = str(new_task_owners) + "$" + split_v[-1][split_v[-1].index("$"):]
+        except:
+            split_v[-1] = str(new_task_owners)
+        print(split_v)
+        task_save_variable = ";".join(split_v)
+        ph = ""
+        NewTask = classes.Task(ph, ph, ph, ph, ph, ph)
+        NewTask = classes.Task.reconstruct(NewTask, task_format_backend(task_save_variable))
+        pprint(NewTask)
+        await NewTask.save_task_to_data()
+        final_return_message_cto.append("\nTask added to:")
+        for person in NewTask.for_whom:
+            final_return_message_cto.append(f"|\t{person}")
+        return "\n".join(final_return_message_cto)
+
+    except Exception as e:
+        pprint(e)
+        await error_log(str(e), requester)
+        return f"Could not fulfill your request - Error: {e}"
