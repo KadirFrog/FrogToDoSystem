@@ -1,8 +1,9 @@
 import os
+from pprint import pprint
 
 
 class Task:
-    def __init__(self, task_name, deadline, task_author, task_creation_date, for_whom, task_description: str = None):
+    def __init__(self, task_name, deadline, task_author, task_creation_date, for_whom: list, task_description: str = None):
         self.task_name = task_name
         self.deadline = deadline
         self.task_author = task_author
@@ -25,8 +26,12 @@ class Task:
             content = "\n".join(content)
             with open(file_path, "w") as f:
                 f.write(content)
+                print("content")
+                pprint(content)
+                print("Person")
+                pprint(file_path)
 
-    def reconstruct(self, task_dictionary: dict[str: str]):
+    def reconstruct(self, task_dictionary: dict[str: str, list[str]]):
         self.__init__(task_dictionary["task_name"], task_dictionary["task_deadline"], task_dictionary["task_author"],
-                      task_dictionary["task_creation_date"], task_dictionary["task_description"])
+                      task_dictionary["task_creation_date"], task_dictionary["for_whom"], task_dictionary["task_description"])
         return self
